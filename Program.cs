@@ -1,30 +1,31 @@
-﻿int x = 0;  // общий ресурс
- 
+﻿
+object loker = new();
+Task[] tasks = new Task[5];
 
-List<Thread> threads = new();
 //запускаем потоки и блокируем главный поток
-for (int i = 1; i < 6; i++)
+for (var i = 0; i < tasks.Length; i++)
 {
-    Thread myThread = new(Print);
-    myThread.Name = $"Поток {i}";
-    myThread.Start();
-    myThread.Join();
-
-
+    tasks[i] = new Task(() =>
+    {
+        Print(i);
+    });
+    tasks[i].Start();   // запускаем задачу
 }
+Task.WaitAll(tasks);
 Console.WriteLine("Готово");
 Console.ReadKey();
 
-void Print()
+void Print(int threadNum)
 {
-
-    x = 1;
-    for (int i = 1; i < 6; i++)
+    lock (loker)
     {
-        Console.WriteLine($"{Thread.CurrentThread.Name}: {x}");
-        x++;
-        Thread.Sleep(1000);
+        var x = 1;
+        for (int i = 1; i < 6; i++)
+        {
+            Console.WriteLine($"{threadNum}: {x}");
+            x++;
+            Thread.Sleep(1000);
+        }
     }
-    
 }
    
